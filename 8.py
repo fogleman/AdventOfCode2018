@@ -6,7 +6,7 @@ def parse(it):
     metadata = [next(it) for _ in range(num_metadata)]
     return (metadata, children)
 
-root = parse(map(int, list(fileinput.input())[0].split()))
+root = parse(map(int, next(fileinput.input()).split()))
 
 # part 1
 def sum_metadata(node):
