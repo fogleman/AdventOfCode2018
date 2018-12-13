@@ -1,4 +1,3 @@
-from collections import defaultdict
 import fileinput
 
 U, D, L, R = (0, -1), (0, 1), (-1, 0), (1, 0)
@@ -30,7 +29,7 @@ class Cart:
     def hits(self, other):
         return self != other and self.ok and other.ok and self.p == other.p
 
-grid = defaultdict(str)
+grid = {}
 carts = []
 for y, line in enumerate(fileinput.input()):
     for x, c in enumerate(line):
@@ -38,9 +37,7 @@ for y, line in enumerate(fileinput.input()):
         if c in directions:
             carts.append(Cart((x, y), directions[c]))
 
-part1 = None
-part2 = None
-
+part1 = part2 = None
 while True:
     carts = sorted(carts, key=lambda x: (x.p[1], x.p[0]))
     for cart in carts:
@@ -49,9 +46,9 @@ while True:
             if cart.hits(other):
                 cart.ok = other.ok = False
                 part1 = part1 or cart.p
-    ok = [x for x in carts if x.ok]
-    if len(ok) == 1:
-        part2 = ok[0].p
+    carts = [x for x in carts if x.ok]
+    if len(carts) == 1:
+        part2 = carts[0].p
         break
 
 print(part1)
