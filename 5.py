@@ -1,6 +1,6 @@
 import fileinput
 
-line = list(fileinput.input())[0].strip()
+line = next(fileinput.input()).strip()
 
 def react(x):
     result = ['']
