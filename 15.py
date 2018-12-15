@@ -38,11 +38,17 @@ def adjacent(positions):
 def choose_target(position, targets, occupied):
     if position in targets:
         return position
+    targets = sorted(targets,
+        key=lambda target: manhattan_distance(position, target))
+    best = None
     results = []
     for target in targets:
+        if best and manhattan_distance(position, target) > best:
+            continue
         path = shortest_path(position, target, occupied)
         if path:
             results.append((len(path), path[-1]))
+            best = len(path) - 1
     return min(results)[-1] if results else None
 
 def choose_move(position, target, occupied):
