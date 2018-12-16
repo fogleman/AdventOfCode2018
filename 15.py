@@ -2,8 +2,6 @@ from itertools import count
 import fileinput
 import heapq
 
-DIRS = [(-1, 0), (0, -1), (0, 1), (1, 0)]
-
 def shortest_paths(source, targets, occupied):
     result = []
     best = None
@@ -42,7 +40,9 @@ def manhattan_distance(a, b):
     return abs(ax - bx) + abs(ay - by)
 
 def adjacent(positions):
-    return set((y + dy, x + dx) for y, x in positions for dy, dx in DIRS)
+    return set((y + dy, x + dx)
+        for y, x in positions
+            for dy, dx in [(-1, 0), (0, -1), (0, 1), (1, 0)])
 
 def choose_target(position, targets, occupied):
     if not targets:
@@ -123,6 +123,10 @@ class Model:
                     attack.hp -= 3
         self.rounds += 1
         return True
+    def run(self):
+        while True:
+            if not self.step():
+                return self.rounds, self.total_hp()
     def __str__(self):
         units = dict((x.position, x) for x in self.units if x.hp > 0)
         x0 = min(x for y, x in self.walls)
@@ -146,22 +150,17 @@ class Model:
             rows.append(''.join(row))
         return '\n'.join(rows) + '\n'
 
-# part 1
 lines = list(fileinput.input())
-model = Model(lines)
-while True:
-    if not model.step():
-        break
-print(model.rounds * model.total_hp())
+
+# part 1
+rounds, hp = Model(lines).run()
+print(rounds * hp)
 
 # part 2
 for elf_attack in count(4):
     try:
-        model = Model(lines, elf_attack)
-        while True:
-            if not model.step():
-                break
-        print(model.rounds * model.total_hp())
+        rounds, hp = Model(lines, elf_attack).run()
+        print(rounds * hp)
         break
     except Exception:
         pass
