@@ -4,14 +4,20 @@ import heapq
 
 DIRS = [(-1, 0), (0, -1), (0, 1), (1, 0)]
 
-def shortest_path(source, target, occupied):
+def shortest_paths(source, targets, occupied):
+    result = []
+    best = None
     visited = set()
     queue = [(0, 0, [source])]
     while queue:
         _, distance, path = heapq.heappop(queue)
+        if best and len(path) > best:
+            return result
         node = path[-1]
-        if node == target:
-            return path
+        if node in targets:
+            result.append(path)
+            best = len(path)
+            continue
         if node in visited:
             continue
         visited.add(node)
@@ -23,9 +29,12 @@ def shortest_path(source, target, occupied):
             new_path = list(path)
             new_path.append(neighbor)
             new_distance = distance + 1
-            estimated_distance = manhattan_distance(neighbor, target)
+            estimated_distance = 0
+            # estimated_distance = min(manhattan_distance(neighbor, target)
+            #     for target in targets)
             new_score = new_distance + estimated_distance
             heapq.heappush(queue, (new_score, new_distance, new_path))
+    return result
 
 def manhattan_distance(a, b):
     ay, ax = a
@@ -36,30 +45,20 @@ def adjacent(positions):
     return set((y + dy, x + dx) for y, x in positions for dy, dx in DIRS)
 
 def choose_target(position, targets, occupied):
+    if not targets:
+        return None
     if position in targets:
         return position
-    targets = sorted(targets,
-        key=lambda target: manhattan_distance(position, target))
-    best = None
-    results = []
-    for target in targets:
-        if best and manhattan_distance(position, target) > best:
-            continue
-        path = shortest_path(position, target, occupied)
-        if path:
-            results.append((len(path), path[-1]))
-            best = len(path) - 1
-    return min(results)[-1] if results else None
+    paths = shortest_paths(position, targets, occupied)
+    ends = [x[-1] for x in paths]
+    return min(ends) if ends else None
 
 def choose_move(position, target, occupied):
     if position == target:
         return position
-    results = []
-    for neighbor in adjacent({position}) - occupied:
-        path = shortest_path(neighbor, target, occupied)
-        if path:
-            results.append((len(path), path[0]))
-    return min(results)[-1]
+    paths = shortest_paths(position, {target}, occupied)
+    starts = [x[1] for x in paths]
+    return min(starts) if starts else None
 
 class Unit:
     def __init__(self, team, position):
