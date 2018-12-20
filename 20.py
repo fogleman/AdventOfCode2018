@@ -17,7 +17,7 @@ def p_pattern(t):
     'pattern : concat'
     t[0] = t[1]
 
-def p_pattern_concat(t):
+def p_pattern_or(t):
     'pattern : pattern OR concat'
     t[0] = ('or', t[1], t[3])
 
@@ -91,14 +91,18 @@ def show(doors):
     for y in range(y0, y1 + 1):
         row1, row2 = ['#'], ['#']
         for x in range(x0 , x1 + 1):
-            row1.append('X' if x == 0 and y == 0 else '.')
-            row1.append('|' if (x, y, x + 1, y) in doors else '#')
-            row2.append('-#' if (x, y, x, y + 1) in doors else '##')
+            has_door = any((x, y, x + dx, y + dy) in doors
+                for dx, dy in dirs.values())
+            c = '.' if has_door else '#'
+            row1.append('X' if x == 0 and y == 0 else c)
+            row1.append('.' if (x, y, x + 1, y) in doors else '#')
+            row2.append('.#' if (x, y, x, y + 1) in doors else '##')
         rows.append(''.join(row1))
         rows.append(''.join(row2))
     return '\n'.join(rows)
 
 doors = locate_doors(next(fileinput.input()))
+# print(show(doors))
 distances = search(doors)
 print(max(distances.values()))
 print(sum(x >= 1000 for x in distances.values()))
