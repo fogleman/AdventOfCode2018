@@ -5,10 +5,10 @@ import heapq
 def shortest_paths(source, targets, occupied):
     result = []
     best = None
-    visited = set()
-    queue = [(0, 0, [source])]
+    visited = set(occupied)
+    queue = [(0, [source])]
     while queue:
-        _, distance, path = heapq.heappop(queue)
+        distance, path = heapq.heappop(queue)
         if best and len(path) > best:
             return result
         node = path[-1]
@@ -20,24 +20,13 @@ def shortest_paths(source, targets, occupied):
             continue
         visited.add(node)
         for neighbor in adjacent({node}):
-            if neighbor in occupied:
-                continue
             if neighbor in visited:
                 continue
-            new_path = list(path)
-            new_path.append(neighbor)
-            new_distance = distance + 1
-            estimated_distance = 0
-            # estimated_distance = min(manhattan_distance(neighbor, target)
-            #     for target in targets)
-            new_score = new_distance + estimated_distance
-            heapq.heappush(queue, (new_score, new_distance, new_path))
+            heapq.heappush(queue, (distance + 1, path + [neighbor]))
     return result
 
 def manhattan_distance(a, b):
-    ay, ax = a
-    by, bx = b
-    return abs(ax - bx) + abs(ay - by)
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def adjacent(positions):
     return set((y + dy, x + dx)
